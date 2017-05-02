@@ -1,1 +1,1 @@
-# android-billing
+# Android In-app Billing API Version 3
