@@ -132,10 +132,17 @@ public class Billing {
                     int response = mService.isBillingSupported(VERSION, mContext.getPackageName(), TYPE_INAPP);
                     if (response != BILLING_RESPONSE_RESULT_OK) {
                         if (listener != null) listener.onError(response, null);
-                    } else {
-                        mState = STATE_READY;
-                        if (listener != null) listener.onSuccess();
+                        return;
                     }
+
+                    response = mService.isBillingSupported(VERSION, mContext.getPackageName(), TYPE_SUBS);
+                    if (response != BILLING_RESPONSE_RESULT_OK) {
+                        if (listener != null) listener.onError(response, null);
+                        return;
+                    }
+
+                    mState = STATE_READY;
+                    if (listener != null) listener.onSuccess();
                 } catch (RemoteException e) {
                     if (listener != null) listener.onError(BILLING_RESPONSE_RESULT_ERROR, e);
                 }
@@ -171,14 +178,14 @@ public class Billing {
         task.execute(skus, listener);
     }
 
-    public void launchPurchaseFlow(Activity activity, String sku, int requestCode, PurchaseListener listener) {
+    public void launchPurchaseFlow(Activity activity, String sku, String itemType, int requestCode, PurchaseListener listener) {
         if (mState != STATE_READY) return;
         mState = STATE_LOADING;
         mPurchaseListener = null;
 
         try {
             mDeveloperPayload = generateDeveloperPayload();
-            Bundle buyIntentBundle = mService.getBuyIntent(VERSION, mContext.getPackageName(), sku, TYPE_INAPP, mDeveloperPayload);
+            Bundle buyIntentBundle = mService.getBuyIntent(VERSION, mContext.getPackageName(), sku, itemType, mDeveloperPayload);
             int response = getResponseCodeFromBundle(buyIntentBundle);
             if (response == BILLING_RESPONSE_RESULT_OK) {
                 PendingIntent pendingIntent = buyIntentBundle.getParcelable(RESPONSE_BUY_INTENT);
@@ -232,7 +239,7 @@ public class Billing {
         }
     }
 
-    private void getSkuDetails(Inventory inventory, ArrayList<String> skus) throws RemoteException, JSONException, BillingException {
+    private void getSkuDetails(Inventory inventory, ArrayList<String> skus, String itemType) throws RemoteException, JSONException, BillingException {
         if (mContext == null || mService == null) {
             throw new BillingException(BILLING_DISPOSED);
         }
@@ -240,7 +247,7 @@ public class Billing {
         Bundle skuParams = new Bundle();
         skuParams.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, skus);
 
-        Bundle skuResult = mService.getSkuDetails(VERSION, mContext.getPackageName(), TYPE_INAPP, skuParams);
+        Bundle skuResult = mService.getSkuDetails(VERSION, mContext.getPackageName(), itemType, skuParams);
 
         int response = getResponseCodeFromBundle(skuResult);
         if (response == BILLING_RESPONSE_RESULT_OK) {
@@ -257,12 +264,12 @@ public class Billing {
         }
     }
 
-    private void getPurchases(Inventory inventory) throws RemoteException, JSONException, BillingException {
+    private void getPurchases(Inventory inventory, String itemType) throws RemoteException, JSONException, BillingException {
         if (mContext == null || mService == null) {
             throw new BillingException(BILLING_DISPOSED);
         }
 
-        Bundle ownedItems = mService.getPurchases(VERSION, mContext.getPackageName(), TYPE_INAPP, null);
+        Bundle ownedItems = mService.getPurchases(VERSION, mContext.getPackageName(), itemType, null);
 
         int response = getResponseCodeFromBundle(ownedItems);
         if (response == BILLING_RESPONSE_RESULT_OK) {
@@ -321,8 +328,10 @@ public class Billing {
                 @SuppressWarnings("unchecked")
                 ArrayList<String> skus = (ArrayList<String>) params[0];
                 Inventory result = new Inventory();
-                getSkuDetails(result, skus);
-                getPurchases(result);
+                getSkuDetails(result, skus, TYPE_INAPP);
+                getPurchases(result, TYPE_INAPP);
+                getSkuDetails(result, skus, TYPE_SUBS);
+                getPurchases(result, TYPE_SUBS);
                 return result;
             } catch (BillingException e) {
                 mException = e;
