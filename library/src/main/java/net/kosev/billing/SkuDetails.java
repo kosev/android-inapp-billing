@@ -24,6 +24,8 @@ public class SkuDetails {
     public String sku;
     public String type;
     public String price;
+    public int priceAmountMicros;
+    public String priceCurrencyCode;
     public String title;
     public String description;
 
@@ -32,6 +34,8 @@ public class SkuDetails {
         sku = json.optString("productId");
         type = json.optString("type");
         price = json.optString("price");
+        priceAmountMicros = json.optInt("price_amount_micros");
+        priceCurrencyCode = json.optString("price_currency_code");
         title = json.optString("title");
         description = json.optString("description");
     }
