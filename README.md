@@ -1,5 +1,5 @@
 # Android In-app Billing API Version 3
-Improved version of Google's in app purchase helper classes. All concurrency problems have been eliminated. Consuming purchases is still not supported.
+Improved version of Google's in-app purchase helper classes. All concurrency problems have been eliminated. In-app products and subscriptions are supported, but consuming is still not.
 
 ## Installation
 In your project level build.gradle:
@@ -29,11 +29,11 @@ Init billing and query purchases in your activity:
 ```java
 private Billing mBilling;
 ...
-mBilling = new Billing(this, "your deobfuscated public key here");
+mBilling = new Billing(this, "Your deobfuscated public key here");
 mBilling.create(new Billing.CreateListener() {
     public void onSuccess() {
         ArrayList<String> skus = new ArrayList<>();
-        skus.add("SKU tu query");
+        skus.add("SKU to query");
         mBilling.loadInventory(skus, new Billing.InventoryListener() {
             public void onSuccess(Inventory inventory) {
                 // inventory.hasPurchase("Your SKU");
