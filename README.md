@@ -51,8 +51,7 @@ mBilling.create(new Billing.CreateListener() {
 });
 ```
 
-Make a purchase:
-First, include on activity result handler and then launch purchase flow for your product's SKU.
+To make a purchase, include activity result handler and then launch purchase flow for your product's SKU.
 ```java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -65,7 +64,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 mBilling.launchPurchaseFlow(SettingsActivity.this, "Your SKU", Billing.TYPE_INAPP, REQUEST_PURCHASE,
     new Billing.PurchaseListener() {
         public void onSuccess(Purchase purchase) {
-            if (purchase.sku.equals("Your SKU")) {
+            if ("Your SKU".equals(purchase.sku)) {
                 // complete order
             }
         }
