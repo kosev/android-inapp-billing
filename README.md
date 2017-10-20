@@ -76,6 +76,19 @@ mBilling.launchPurchaseFlow(SettingsActivity.this, "Your SKU", Billing.TYPE_INAP
     });
 ```
 
+Releasing resources
+```java
+@Override
+protected void onDestroy() {
+    if (mBilling != null) {
+        mBilling.destroy();
+        mBilling = null;
+    }
+
+    super.onDestroy();
+}
+```
+
 ## License
 ```
 Copyright 2017 Nikola Kosev
