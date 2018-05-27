@@ -17,7 +17,7 @@ In your app level build.gradle:
 
 ```java
 dependencies {
-    compile 'com.github.kosev:android-inapp-billing:1.1.1'
+    implementation 'com.github.kosev:android-inapp-billing:1.1.2'
 }
 ```
 
